@@ -1,16 +1,45 @@
+.form1 {
+  text-align: center;
+  color: beige;
+  align-items: flex-start;
+}
+
+.beigeletters {
+  color: beige;
+}
+
+.redletters {
+  color: red;
+}
+
+.form1 input {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  color: beige;
+  background-color: #282c34;
+}
+
+.form2 {
+  color: red;
+}
+
+.form2 input {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  color: red;
+  background-color: #282c34;
+}
+
 .App {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+  font-size: 33px;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  background-color: beige;
+  color: red;
 }
 
 .App-header {
@@ -24,15 +53,16 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.form3 {
+  visibility: hidden;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.form4{
+ white-space: nowrap;
+display: inline-block; 
 }
+
+.spawnbutton {
+  height: 35px;
+}
+
