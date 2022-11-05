@@ -4,6 +4,13 @@
   align-items: flex-start;
 }
 
+.form4{
+  visibility: hidden;
+  padding: 15px;
+  margin: 15px;
+  word-spacing: 15px;
+}
+
 .beigeletters {
   color: beige;
 }
@@ -57,10 +64,6 @@
   visibility: hidden;
 }
 
-.form4{
- white-space: nowrap;
-display: inline-block; 
-}
 
 .spawnbutton {
   height: 35px;
