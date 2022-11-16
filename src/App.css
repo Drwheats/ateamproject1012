@@ -11,6 +11,12 @@
   word-spacing: 15px;
 }
 
+.errormessage{
+  visibility: hidden;
+  padding: 15px;
+  margin: 15px;
+
+}
 .beigeletters {
   color: beige;
 }
