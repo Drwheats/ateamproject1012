@@ -75,3 +75,16 @@
   height: 35px;
 }
 
+.scoreboard {
+  margin-left: 20px;
+  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+  z-index: 1;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.form5 {
+  visibility: visible;
+}
