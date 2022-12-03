@@ -1,245 +1,434 @@
 import './App.css';
+
 import { useEffect, useState } from 'react';
-import mineLogo from './media/minepumpkin.png';
-import mineBad from './media/mine.png'
-import mineGood from './media/defusedpump.png'
-import mineBoom from './media/minepumpkinboom.png'
-import jsonScores from './media/highscores.json';
+var firstClick = true;
+var chckdSqr = 0;
+var dark = true;
+var sound = true;
+var x;
+var y;
+var numMinesArnd = [];
+const sqr = [];
+const line = [];
+const msg = document.createElement("p");
+
+
 
 function App() {
-  const [grid, setGrid] = useState(0);
-  const [mines, setMines] = useState(0);
-  const [gameState, setGameState] = useState(false);
+  // this maes the leaderboard update automatically when it gets a new score.
   const [data, setData] = useState(false);
   const [scores, setScores] = useState([]);
+  const [scoreToSubmit, setScoreToSubmit] = useState(0);
+  // bad but w/e. program was designed this way.
+  const [stateDifficulty, setStateDifficulty] = useState(0);
 
-  useEffect(() => {
-    fetch("http://localhost:3001/api")
-      .then(res => res.json())
-      .then(
-        (result) => {
-          setData(true);
-          setScores(result);
-          console.log(scores);
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        (error) => {
-          setData(true);
-          console.log('error');
-        }
-      )
-  }, [])
-
-
-  function showFormIfInputGood() {
-    document.getElementById("form3").style.visibility = "visible";
-    document.getElementById("form4").style.visibility = "visible";
-    document.getElementById("errormessage").style.visibility = "hidden";
-  }
-  function hideFormIfInputBad() {
-    document.getElementById("form3").style.visibility = "hidden";
-    document.getElementById("form4").style.visibility = "hidden";
-    document.getElementById("errormessage").style.visibility = "visible";
-
-    if (grid * grid === 0 && mines === 0) {
-      document.getElementById("errormessage").style.visibility = "hidden";
-      document.getElementById("form3").style.visibility = "hidden";
-      document.getElementById("form4").style.visibility = "hidden";
+  const scoreBoardMap = scores.map(s => <tr> <td>{s.name}</td> <td>{s.score}</td> <td>{s.time}</td> </tr>);
   
-    } 
-  }
-
-  function winGame() {
-    document.getElementById("errormessage").style.visibility = "visible";
-    document.getElementById("errormessage").innerHTML = "You have won the game! Congratulations, please enter your score."
-    document.getElementById("errormessage").style.visibility = "visible";
-
-  }
-
-  function loseGame() {
-    document.getElementById("errormessage").style.visibility = "visible";
-    document.getElementById("errormessage").innerHTML = "You have lost the game! Congratulations, your score has not been recorded."
-  }
-
-  function clickRestart() {
-    console.log('works so far');
-    setGameState(false);
-    setGrid(0);
-    setMines(0);
-    hideFormIfInputBad();
-    document.getElementById("form1").style.visibility = "visible";
-    document.getElementById("form2").style.visibility = "visible";
-    document.getElementById("form3").style.visibility = "visible";
-  }
-
-  function clickSpawn() {
-    setGameState(true);
-    document.getElementById("form1").style.visibility = "hidden";
-    document.getElementById("form2").style.visibility = "hidden";
-    // FIX Why do you need to click this twice? 
-    document.getElementById("form3").style.visibility = "hidden";
-    console.log('hiding forms ...');
-    
-  } // This will be used to run the program, right now it is reacting for testing purposes.
-  
-
-  // High SCores are populated from this json file. {temp} is located in a li at the beginning of the HTML. CSS puts this in a side bar, the css is bad.
-  let someData = scores;
-  // here is where the code goes that will order JSON by .score
-
-  const temp = someData.map(s => <li>{s.name}, {s.score}</li>);
-
-
-  function clickSubmit() {
-    // // thi isnt good
-    // const fs = require('fs');
-    // var jsonName = document.getElementById("inputGetName").value;
-    // var jsonScore = document.getElementById("inputGetScore").value;
-    // var userScore = {name: jsonName, score: jsonScore};
-    // const data = JSON.stringify(userScore);
-    // const writeToJSON = (data) => {
-    //   const DATA_PATH = jsonScores
-    //   fs.writeFile(
-    //     DATA_PATH,
-    //     JSON.stringify(data),
-    //     (err) => {
-    //       if (err) return console.error(err)
-    //       console.log('Wrote data to ', DATA_PATH)
-    //     },
-    //   )
-    // }
-    // writeToJSON(data)  
-  }
-
-
+  // hooks for scoreboard go here. 
   useEffect(() => {
-    if (grid > 1 && grid < 70 && (grid * grid) > mines) {
-      showFormIfInputGood();
-    }
-    else {
-      hideFormIfInputBad();
-    }
 
-  })
-
-
-  function GameGrid(props) {
-    let gamePlaying = true;
-      const row_length = props.gridnum;
-      const num_grid = row_length * row_length;
-      const mines = props.minenum;
-      let gameGrid = [];
-      const gameColumns = [];
-      let c = 0;
-      const mineArray = [];
-      let score = 1;
-
-      // Looks like most of the logic for the actual game is going to be in here, which is bad. But whatever.
-      // My plan as of now : I am going to use this to update a 4th state variable. When number of spaces - mines is equal to zero, that means the player wins.
-      const handleClick = (event, key) => {
-        console.log('this is ' + event.target.className + ' number: ', key);
-        if (event.target.className === "yesMine" && gamePlaying === true  && gameState === true) {
-          event.target.src = mineBoom;
-          console.log('MINE');
-          gamePlaying = false;
-          loseGame();
-        }
-        if (event.target.className === "notMine" && gamePlaying === true && !(event.target.defused) && gameState === true) {
-          event.target.defused = true;
-          event.target.src = mineGood;
-          console.log(event.target.defused);
-          console.log(score);
-          score = score +1;
-          if (score > grid * grid - mines && gameState === true && mines !== grid * grid) {
-            console.log('you win');
-            gamePlaying = false;
-            winGame();
+    if (data === false) {
+      fetch("http://localhost:3001/api")
+        // we basically take request, jsonify it, update state to true, update score state with
+        .then(res => res.json())
+        .then(
+          (result) => {
+            // setData(true);
+            setScores(result);
+          },
+          (error) => {
+            // setData(true);
+            console.log('error');
           }
-        }
-        // I am going to put code here once mr. logic is done with his logic. This will search around the grid and get the minesweeper #.
-        
+        )
+    }
+    // API for our express server, located in the node folder.
 
-      };
-      
-    
-      // makes array of non-mine objects
-      for (let i=0; i < num_grid; i++) {
-        gameGrid.push(<img alt="mine?" onClick={e => handleClick(e, i)} defused={false} className="notMine" src={mineLogo}></img>)
-      }
-    
-      // makes array of mine objects
-      for (let i=0; i < mines; i++) {
-        mineArray.push(<img alt="mine?" onClick={e => handleClick(e, i)} className="yesMine" src={mineBad}></img>)
-      }
-    
-      // next 2 blocks get rid of x non-mine objects and add the whole mine array into the grid.
-      for (let i = 0; i < mines; i++) {
-        gameGrid.pop();
-      }
-    
-      for (let i = 0; i < mines; i++) {
-        gameGrid.push(mineArray[i]);
-      }
-      gameGrid = gameGrid.map(value => ({value, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({value}) => value)
-      // Randomizes the board.
-    
-      //takes from the mineGrid array of grid objects, makes them into rows, then makes X rows to make the whole board
-      for (let j=0; j < row_length; j++) {
-        let mineRows = [];
-        for (let i=0; i < row_length; i++) {
-          // If there is a time where I need to give every object in mineGrid a unique key, this is where I would do it by cloning the object.
-          mineRows.push(gameGrid[c])
-          c += 1;
-        }
-        gameColumns.push(mineRows)
-        gameColumns.push(<br></br>)
-      } // defines the good spaces on the grid
-    
-      // renders grid for gamegrid object
-      return (gameColumns);
-      }
+  }, [data, scores])
+  const changeInputScoreValue = (event) => {
+    setScoreToSubmit(event.target.value);
+  }
+  // All timer stuff goes here 
+  const [time, setTime] = useState(0);
+  const [timeToSubmit, setTimeToSubmit] = useState(0);
 
-    
+  useEffect(() => {
+    const tick = setInterval(() => {
+          setTime((t) => t + 1);
+
+    }, 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+
+
+  function submitScore(score) {
+    setData(false);
+    console.log(time);
+    if (scoreToSubmit === 0) {
+      scoreToSubmit = "AAA";
+    }
+    let json_body = JSON.stringify(
+      { name: scoreToSubmit, score: stateDifficulty, time: time})
+    const scoreJSON = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: json_body
+    }
+    fetch("http://localhost:3001/submit", scoreJSON)
+      .then(response => response.json());
+
+    document.getElementById("highScoreForm").style.visibility = "hidden";
+    setData(false);
+  }
+
   return (
-    <div className="App">Mine Sweeping Simulator for COMP1012
-      <header className="App-header">
-      <p className='scoreboard' id='scoreboard'>
-          <ol>{temp}</ol>
-      </p>
+    <div className="app" id="app">
+      <header id="header">
 
-          <p className='form1' id='form1'> 
-          <label>Number of Boxes: </label>
-          <input type="text" value={grid} onChange={e => setGrid(e.target.value)}></input> <label value={grid} >x{grid}</label>
-          </p>
-          <p className='form2' id='form2'>
-          <label>Number of Mines: </label>
-          <input type="text" value={mines} placeholder={Math.ceil((grid * grid) / 5)} onChange={e => setMines(e.target.value)}></input>
-          </p>
-          <p className='form3' id='form3'>
-          <label>Spawn a <span className='beigeletters'>{grid}x{grid}</span> board with <span className='redletters'>{mines}</span> mines.</label>
-          <br></br>
-          <button className='spawnbutton' onClick={() => { clickSpawn()}}>Play</button>
-          </p>
-        <p className='form4' id='form4'>
-        <GameGrid gridnum={grid} minenum={mines}/></p>
-        <p className='errormessage' id='errormessage'>Invalid Settings; Please Try Again.</p>
-        <button className='restartButton' id='restartButton' onClick={clickRestart} >Restart</button>
-        {/* Fix this CSS, its really ugly honestly. It becomes visible/invisible based on if you've won or not, so for debugging just go to app.css and make it visible.*/}
-        <p className='form5' id='form5'>
-          <label>Name</label>
-        <input className='inputGetName' id='inputGetName' type='text'></input>
-        <label>Score</label>
+        <div className="pageTitle">
+          <h1>Minesweeper-1012</h1>
+        </div>
 
-        <input className='inputGetScore' id='inputGetScore' type='text'></input>
-        <button className='submitButton' id='submitButton' onClick={clickSubmit}>Submit</button>
-        </p>
+        <div className="settings">
+          <button onClick={function () { newGame() }}>Restart</button>
+          <button id="darkBtn" onClick={function () { toggleLight() }}>Dark Mode</button>
+          <button id="soundBtn" onClick={function () { toggleSound() }}>Sound Effects ON</button>
+        </div>
+
+        <div className="leaderboard" id="leaderboard">
+          <p></p>
+          <h5>High Scores:</h5>
+          <table className='leaderboardTable' id='leaderboardtable'><tr>
+            <td>Name | </td>
+            <td>Score | </td>
+            <td>Time</td>
+          </tr>
+            {scoreBoardMap}</table>
+        </div>
 
       </header>
+
+      <main>
+        <div className="gameOptions" id="gameOptions">
+          <div className="presetOptions">
+            <button className="easy" id="easy" onClick={function () { createGrid(0) }}>Easy(9x9, 10 Mines)</button>
+            <button className="medium" id="medium" onClick={function () { createGrid(1) }}>Medium(16x16, 40 Mines)</button>
+            <button className="hard" id="hard" onClick={function () { createGrid(2) }}>Hard(32x16, 99 Mines)</button>
+            <div className="customOption">
+              <button className="customize" id="customize" onClick={function () { createGrid(3) }}>Custom:</button>
+
+              Length:
+              <input type="number" id="length"></input>
+              Height:
+              <input type="number" id="height"></input>
+              Mines:
+              <input type="number" id="Mines"></input>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div className="mineMap" id="mineMap">
+          {/* Gonna put the timer here */}
+          <div className='timer' id='timer'>Time Elapsed: {time}</div>
+
+
+          <button id='playButton' className='playButton' onClick={function () { playGame() }}>PLAY</button>
+
+          {/* make this button look really nice, we have such a limited UI as it is tbh. */}
+
+          {/* Everything HTML related to scoreboards goes here : */}
+          <div className='highScoreForm' id='highScoreForm'>
+
+            <p>Victory! Enter Your Name for the Leaderboards:</p>
+            <label>Name: </label><input type="text" id="scoreSubmission" name="scoreSubmission" onChange={changeInputScoreValue}></input><button onClick={submitScore}>Submit</button>
+          </div>
+
+        </div>
+      </main>
     </div>
   );
-}
 
+  function createGrid(difficulty) {
+    var mines;
+    setTime(0);
+    if (difficulty === 0) {
+      document.getElementById("gameOptions").style.visibility = "hidden";
+      document.getElementById("playButton").style.visibility = "hidden";
+  
+      x = 9;
+      y = 9;
+      mines = 10;
+    } else if (difficulty === 1) {
+      document.getElementById("gameOptions").style.visibility = "hidden";
+      document.getElementById("playButton").style.visibility = "hidden";
+  
+      x = 16;
+      y = 16;
+      mines = 40;
+    } else if (difficulty === 2) {
+      document.getElementById("gameOptions").style.visibility = "hidden";
+      document.getElementById("playButton").style.visibility = "hidden";
+  
+      x = 32;
+      y = 16;
+      mines = 99;
+    } else {
+      x = parseInt(document.getElementById("length").value);
+      y = parseInt(document.getElementById("height").value);
+      document.getElementById("gameOptions").style.visibility = "hidden";
+      document.getElementById("playButton").style.visibility = "hidden";    
+      mines = parseInt(document.getElementById("Mines").value);
+      
+      if (x < 2 || x > 45 || y < 2 || y > 100 || isNaN(y) || isNaN(x) || isNaN(mines) || mines > y * x) {
+        console.log(x);
+        console.log(y);
+        console.log(mines);
+        alert("Please enter a valid input!")
+        x = 0;
+        y = 0;
+        document.getElementById("playButton").style.visibility = "visible";    
+
+      }
+
+    }
+    // makes more sense because it works with custom tbh.
+    setStateDifficulty(Math.floor((mines / (x * y)) * (x * y - mines) * 100));
+    document.getElementById("easy").disabled = true;
+    document.getElementById("medium").disabled = true;
+    document.getElementById("hard").disabled = true;
+    document.getElementById("customize").disabled = true;
+    const map = document.getElementById("mineMap");
+    for (let i = 0; i < x * y; i++) {
+      if (i % x === 0) {
+        line[i] = document.createElement("br");
+        map.appendChild(line[i]);
+      }
+      sqr[i] = document.createElement("button");
+      if (difficulty === 2 || x > 29) {
+        sqr[i].className = 'smallSquare';
+      }
+      sqr[i].buttonEnabled = true;
+      sqr[i].addEventListener("click", function () { if (this.buttonEnabled === true) { revealSqr(i, mines) } });
+      sqr[i].addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        console.log("I think u right clicked");
+        if (sqr[i].buttonEnabled === true) {
+          sqr[i].buttonEnabled = false;
+          sqr[i].style.background = "red";
+        }
+        else if (sqr[i].buttonEnabled === false) {
+          sqr[i].buttonEnabled = true;
+          sqr[i].style.background = "#f0f0f0";
+        }
+
+
+      });
+      map.appendChild(sqr[i]);
+    }
+  }
+
+  function revealSqr(SqrPos, mines) {
+    if (firstClick) {
+      firstClick = false;
+      setTime(0);
+      document.getElementById("timer").setAttribute.visibility = "visible";
+      createMines(mines, SqrPos);
+    }
+    sqr[SqrPos].disabled = true;
+    sqr[SqrPos].style.backgroundColor = "rgb(200, 200, 225)";
+    if (numMinesArnd[SqrPos] >= 10) {
+      sqr[SqrPos].innerHTML = "BOOM";
+      endGame(false);
+    } else {
+      sqr[SqrPos].innerHTML = numMinesArnd[SqrPos];
+      if (numMinesArnd[SqrPos] === 0) {
+        wipeZeroes(SqrPos, mines);
+      }
+      chckdSqr++;
+      if (chckdSqr === x * y - mines) {
+        endGame(true);
+      }
+    }
+  }
+
+  function createMines(mines, SqrPos) {
+    document.getElementById("timer").style.visibility = "visible";
+
+    for (let i = 0; i < x * y; i++) {
+      numMinesArnd[i] = 0;
+    }
+    for (let i = 0; i < mines; i++) {
+      var position = Math.floor(Math.random() * x * y + 1);
+      if (numMinesArnd[position] !== 10 && position !== SqrPos) {
+        numMinesArnd[position] = 10;
+      } else {
+        i--;
+      }
+
+    }
+    for (let i = 0; i < x * y; i++) {
+      if (i % x !== 0) {
+        if (numMinesArnd[i - 1] >= 10) {
+          numMinesArnd[i]++;
+        }
+      }
+      if (i % x !== x - 1) {
+        if (numMinesArnd[i + 1] >= 10) {
+          numMinesArnd[i]++;
+        }
+      }
+      if (i >= x) {
+        if (numMinesArnd[i - x] >= 10) {
+          numMinesArnd[i]++;
+        }
+      }
+      if (i < x * (y - 1)) {
+        if (numMinesArnd[i + x] >= 10) {
+          numMinesArnd[i]++;
+        }
+      }
+
+      if (i % x !== 0 && i >= x) {
+        if (numMinesArnd[i - x - 1] >= 10) {
+          numMinesArnd[i]++;
+        }
+      }
+      if (i % x !== 0 && i < x * (y - 1)) {
+        if (numMinesArnd[i + x - 1] >= 10) {
+          numMinesArnd[i]++;
+        }
+      }
+      if (i % x !== x - 1 && i >= x) {
+        if (numMinesArnd[i - x + 1] >= 10) {
+          numMinesArnd[i]++;
+        }
+      }
+      if (i % x !== x - 1 && i < x * (y - 1)) {
+        if (numMinesArnd[i + x + 1] >= 10) {
+          numMinesArnd[i]++;
+        }
+      }
+    }
+  }
+
+  function wipeZeroes(SqrPos, mines) {
+    if (SqrPos >= x && sqr[SqrPos - x].innerHTML === "") {
+      revealSqr(SqrPos - x, mines);
+    }
+    if (SqrPos < x * (y - 1) && sqr[SqrPos + x].innerHTML === "") {
+      revealSqr(SqrPos + x, mines);
+    }
+    if (SqrPos % x !== 0 && sqr[SqrPos - 1].innerHTML === "") {
+      revealSqr(SqrPos - 1, mines);
+    }
+    if (SqrPos % x !== x - 1 && sqr[SqrPos + 1].innerHTML === "") {
+      revealSqr(SqrPos + 1, mines);
+    }
+
+    if (SqrPos % x !== 0 && SqrPos >= x && sqr[SqrPos - x - 1].innerHTML === "") {
+      revealSqr(SqrPos - x - 1, mines);
+    }
+    if (SqrPos % x !== 0 && SqrPos < x * (y - 1) && sqr[SqrPos + x - 1].innerHTML === "") {
+      revealSqr(SqrPos + x - 1, mines);
+    }
+    if (SqrPos % x !== x - 1 && SqrPos >= x && sqr[SqrPos - x + 1].innerHTML === "") {
+      revealSqr(SqrPos - x + 1, mines);
+    }
+    if (SqrPos % x !== x - 1 && SqrPos < x * (y - 1) && sqr[SqrPos + x + 1].innerHTML === "") {
+      revealSqr(SqrPos + x + 1, mines);
+    }
+
+  }
+  function newGame() {
+    document.getElementById("timer").style.visibility = "hidden";
+
+    document.getElementById("mineMap").style.background = "rgb(30, 100, 150)";
+
+    document.getElementById("playButton").style.visibility = "visible";
+    document.getElementById("gameOptions").style.visibility = "hidden";
+    const map = document.getElementById("mineMap");
+    chckdSqr = 0;
+    msg.innerHTML = "";
+    for (let i = 0; i < x * y; i++) {
+      if (i % x === 0) {
+        map.removeChild(line[i]);
+      }
+      map.removeChild(sqr[i]);
+    }
+    document.getElementById("easy").disabled = false;
+    document.getElementById("medium").disabled = false;
+    document.getElementById("hard").disabled = false;
+    document.getElementById("customize").disabled = false;
+    document.getElementById("highScoreForm").style.visibility = "hidden";
+    firstClick = true;
+  }
+
+  function playGame() {
+
+
+    document.getElementById("easy").disabled = false;
+    document.getElementById("medium").disabled = false;
+    document.getElementById("hard").disabled = false;
+    document.getElementById("customize").disabled = false;
+    document.getElementById("highScoreForm").style.visibility = "hidden";
+ 
+    document.getElementById("gameOptions").style.visibility = "visible";
+    document.getElementById("playButton").style.visibility = "hidden";
+  }
+
+  function toggleLight() {
+    if (dark) {
+      dark = false;
+      document.getElementById("darkBtn").innerHTML = "Light Mode";
+      document.getElementById("header").style.backgroundColor = "rgb(215, 215, 255)";
+      document.getElementById("leaderboard").style.backgroundColor = "rgb(230, 210, 220)";
+      document.getElementById("gameOptions").style.backgroundColor = "rgb(90, 150, 200)";
+      document.getElementById("mineMap").style.backgroundColor = "rgb(115, 175, 220)";
+      document.getElementById("app").style.backgroundColor = "rgb(115, 175, 220)";
+    } else {
+      document.getElementById("header").style.backgroundColor = "rgb(130, 125, 150)";
+      document.getElementById("leaderboard").style.backgroundColor = "rgb(200, 170, 180)";
+      document.getElementById("gameOptions").style.backgroundColor = "rgb(30, 75, 120)";
+      document.getElementById("mineMap").style.backgroundColor = "rgb(30, 100, 150)";
+      document.getElementById("app").style.backgroundColor = "rgb(30, 100, 150)";
+      document.getElementById("darkBtn").innerHTML = "Dark Mode";
+      dark = true;
+    }
+  }
+  function toggleSound() {
+    if (sound) {
+      sound = false;
+      document.getElementById("soundBtn").innerHTML = "Sound Effects OFF";
+    } else {
+      document.getElementById("soundBtn").innerHTML = "Sound Effects ON";
+      sound = true;
+    }
+  }
+  function endGame(win) {
+    document.getElementById("timer").style.visibility = "hidden";
+
+    for (let i = 0; i < x * y; i++) {
+      sqr[i].disabled = true;
+    }
+    if (win) {
+      setTimeToSubmit(time);
+      console.log(timeToSubmit);
+      msg.innerHTML = "You Won! Your time is : " + timeToSubmit;
+      document.getElementById("mineMap").insertBefore(msg, sqr[0]);
+      document.getElementById("highScoreForm").style.visibility = "visible";
+
+    } else {
+      msg.innerHTML = "You Lost"
+      document.getElementById("mineMap").insertBefore(msg, sqr[0]);
+      document.getElementById("mineMap").style.background = "red";
+
+    }
+    // we are going to show the HIGHSCORE thing here.
+  }
+}
 
 export default App;
