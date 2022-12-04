@@ -444,7 +444,8 @@ function App() {
         document.getElementById("playSoundWin").play();
 
       
-      msg.innerHTML = "You Won! Your time is : " + time;
+      var timeMessage = document.getElementById("timer").innerHTML;
+      msg.innerHTML = "You Won! Your time is : " + timeMessage;
       console.log('You won! Your time is :' + time);
 
       document.getElementById("mineMap").insertBefore(msg, sqr[0]);
