@@ -188,8 +188,9 @@
   .timer {
     font-size: x-large;
     color: white;
-    display: flex;
+    display: contents;
     visibility: hidden;
+    align-items: center;
   }
   
   .leaderboardTable td, #leaderBoardTable th {

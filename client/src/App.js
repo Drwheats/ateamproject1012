@@ -32,8 +32,15 @@ function App() {
       }
     }
   )
-  const scoreBoardMap = scores.map(s => <tr> <td>{s.name}</td> <td>{s.score}</td> <td>{s.time}</td> </tr>);
-  
+  scores.forEach(s => {
+    let tempSeconds = s.time % 60;
+    if (tempSeconds < 10) {
+      tempSeconds = "0" + tempSeconds;
+    }
+    let tempTime = Math.floor(s.time / 60) + ":" + tempSeconds;
+    s.timeReal = tempTime;
+  });
+  const scoreBoardMap = scores.map(s => <tr> <td>{s.name}</td> <td>{s.score}</td> <td>{s.timeReal}</td> </tr>);
   // hooks for scoreboard go here. 
   useEffect(() => {
 
@@ -115,11 +122,10 @@ function App() {
           <p></p>
           <h5>High Scores:</h5>
           <table className='leaderboardTable' id='leaderboardtable'><tr>
-            <td>Name | </td>
-            <td>Score | </td>
+            <td>Name</td>
+            <td>Score</td>
             <td>Time</td>
-          </tr>
-            {scoreBoardMap}</table>
+          </tr>{scoreBoardMap}</table>
         </div>
 
       </header>
