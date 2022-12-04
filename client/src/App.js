@@ -18,14 +18,14 @@ function App() {
   // this maes the leaderboard update automatically when it gets a new score.
   const [data, setData] = useState(false);
   const [scores, setScores] = useState([]);
-  const [scoreToSubmit, setScoreToSubmit] = useState(0);
+  let [scoreToSubmit, setScoreToSubmit] = useState(0);
   // bad but w/e. program was designed this way.
   const [stateDifficulty, setStateDifficulty] = useState(0);
 
   scores.sort(
     function(x, y) {
       if (x.score === y.score) {
-        return x.time < y.time ? 1 : -1;
+        return x.time > y.time ? 1 : -1;
       }
       else {
         return x.score < y.score ? 1 : -1
@@ -59,11 +59,12 @@ function App() {
     setScoreToSubmit(event.target.value);
   }
   // All timer stuff goes here 
-  const [time, setTime] = useState(0);
-  const [timeToSubmit, setTimeToSubmit] = useState(0);
+  let [time, setTime] = useState(0);
+  // const [timeToSubmit, setTimeToSubmit] = useState(0);
 
   useEffect(() => {
     const tick = setInterval(() => {
+
           setTime((t) => t + 1);
 
     }, 1000);
@@ -74,7 +75,6 @@ function App() {
 
   function submitScore(score) {
     setData(false);
-    console.log(time);
     if (scoreToSubmit === 0) {
       scoreToSubmit = "AAA";
     }
@@ -95,11 +95,16 @@ function App() {
   return (
     <div className="app" id="app">
       <header id="header">
+        <audio type='mp3' id='playSound1'src='./boop_final1.mp3'></audio>
+        <audio type='mp3' id='playSound2'src='./Boop_final2.mp3'></audio>
+        <audio type='mp3' id='playSound3'src='./Boop_final3.mp3'></audio>
+        <audio type='mp3' id='playSoundLose'src='./losser.mp3'></audio>
+        <audio type='mp3' id='playSoundWin'src='./victory1.mp3'></audio>
+
 
         <div className="pageTitle">
           <h1>Minesweeper-1012</h1>
         </div>
-
         <div className="settings">
           <button onClick={function () { newGame() }}>Restart</button>
           <button id="darkBtn" onClick={function () { toggleLight() }}>Dark Mode</button>
@@ -248,6 +253,11 @@ function App() {
       document.getElementById("timer").setAttribute.visibility = "visible";
       createMines(mines, SqrPos);
     }
+    let soundNum = Math.floor(Math.random() * (3 - 1 + 1) + 1)
+    if (sound = true) {
+      document.getElementById("playSound" + soundNum).play();
+
+    }
     sqr[SqrPos].disabled = true;
     sqr[SqrPos].style.backgroundColor = "rgb(200, 200, 225)";
     if (numMinesArnd[SqrPos] >= 10) {
@@ -355,9 +365,7 @@ function App() {
   }
   function newGame() {
     document.getElementById("timer").style.visibility = "hidden";
-
     document.getElementById("mineMap").style.background = "rgb(30, 100, 150)";
-
     document.getElementById("playButton").style.visibility = "visible";
     document.getElementById("gameOptions").style.visibility = "hidden";
     const map = document.getElementById("mineMap");
@@ -413,6 +421,13 @@ function App() {
     if (sound) {
       sound = false;
       document.getElementById("soundBtn").innerHTML = "Sound Effects OFF";
+      document.getElementById("playSound1").muted = true;
+      document.getElementById("playSound2").muted = true;
+      document.getElementById("playSound3").muted = true;
+      document.getElementById("playSoundLose").muted = true;
+      document.getElementById("playSoundWin").muted = true;
+
+
     } else {
       document.getElementById("soundBtn").innerHTML = "Sound Effects ON";
       sound = true;
@@ -425,13 +440,24 @@ function App() {
       sqr[i].disabled = true;
     }
     if (win) {
-      setTimeToSubmit(time);
+      // setTimeToSubmit(time);
+        document.getElementById("playSoundWin").play();
+
+      
       msg.innerHTML = "You Won! Your time is : " + time;
+      console.log('You won! Your time is :' + time);
+
       document.getElementById("mineMap").insertBefore(msg, sqr[0]);
+
       document.getElementById("highScoreForm").style.visibility = "visible";
 
     } else {
-      msg.innerHTML = "You Lost"
+      
+      msg.innerHTML = "You Lost";
+        document.getElementById("playSoundLose").play();
+
+      
+
       document.getElementById("mineMap").insertBefore(msg, sqr[0]);
       document.getElementById("mineMap").style.background = "red";
 
