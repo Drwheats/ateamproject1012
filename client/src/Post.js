@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
 
-export default function Post({postName, postTopic, postBody, postNumber, postVisibility}) {
+export default function Post({postName, postTopic, postBody, postNumber, postVisibility, postNumberReplies}) {
 
     // this is how we are going to map the post to the page. Further bulletics events etc
     // const path = location.pathname.split("/")[2];
@@ -9,16 +9,13 @@ export default function Post({postName, postTopic, postBody, postNumber, postVis
 
     return (
 
-        <div className="postHolder">
-            <Link to={"/post/" + postNumber}></Link>
+        <a className="postHolder" href={"/post/" + postNumber}>
         {/*<img src="img_avatar.png" alt="Avatar" style="width:100%">*/}
-            <div className="container">
-                <h6 className="postNumber">#{postNumber}</h6><h5 className="postName">{postName}</h5>
-            </div>
-            <a href={"/post/" + postNumber} className="postTopic">{postTopic}</a>
+            <h5 className="postHeader">#{postNumber} {postName} <h2 className="postTopic">{postTopic} </h2> <h4 className="replies">Replies: {postNumberReplies}</h4>
+            </h5>
 
             <p className="postText">{postBody}</p>
 
-        </div>
+        </a>
 )
 }

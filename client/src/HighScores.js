@@ -19,10 +19,8 @@ export default function HighScores() {
                         console.log('successfully fetched data.')
                         setAllPosts(result);
                         setData(false);
-                    },
-                    (error) => {
-                        console.log('error');
                     }
+
                 )}
 
 
@@ -51,24 +49,24 @@ export default function HighScores() {
             for (let i = 0; i < allPosts.length; i++) {
                 if (!allPosts[i].postName.toLowerCase().includes(searchPoster.toLowerCase())) {
                     allPosts[i].postVisibility = false;
+                    setData(true);
                 }
+                else {allPosts[i].postVisibility = true}
             }
         }
         else {
             for (let i = 0; i < allPosts.length; i++)
             {allPosts[i].postVisibility = true}
+            setData(true);
 
         }
+        setData(false);
 
 
-
-    })
-
-    useEffect(() => {
     })
 
     function submitScore() {
-        setData(true);
+        setData(false);
         if (nameToSubmit === '') {
             // I don't know why this is, but it is. Can
             setNameToSubmit("anonymous");
@@ -82,14 +80,15 @@ export default function HighScores() {
         }
         fetch("http://localhost:3001/submit", scoreJSON)
             .then(response => response.json());
+        setData(true);
 
-        setData(false);
+        setData(true);
     }
 
     function clearFilters() {
-
         for (let i = 0; i < allPosts.length; i++) {
                 allPosts[i].postVisibility = true;
+                setData(true)
             }
         setSearchPoster("");
         document.getElementById("searchBarPoster").target.value = "";
@@ -101,20 +100,15 @@ export default function HighScores() {
                 <div className="searchBar">
                     <h3>Find Posts</h3>
                     <div>
-                        <label>Poster:   </label><input type="text" className="searchBarPoster" onChange={changeSearchPoster}/>
-
+                        <label>Name:   </label><input type="text" className="searchBarPoster" onChange={changeSearchPoster}/>
                     </div>
-
                     <div>
                         <label>Topic:   </label><input type="text" className="searchBarTopic"/>
-
                     </div>
                     <div>
                         <label>Content: </label><input type="text" className="searchBarContent"/>
-
                     </div>
                         <button className="clearButton" onClick={clearFilters}>CLEAR ALL FILTERS</button>
-
 
                 </div>
                 <div className="submissionForm">

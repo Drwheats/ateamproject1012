@@ -42,6 +42,7 @@ export default function PostPage() {
         fetch("http://localhost:3001/submitReply", scoreJSON)
             .then(response => response.json()
                 .then(setReceivedReply(response)));
+        setIsLoading(true)
     }
 
     console.log(clientReplyBody);
@@ -82,6 +83,8 @@ export default function PostPage() {
                     return <EnemyPost enemyPostName={s.replyName} enemyPostBody={s.replyBody} enemyPostNumber={s.postNumber}/>
                 })}
         </div>
+            <div className="submissionFormReply">
+
             <div className="submissionForm">
                 <label>Name</label><input onChange={changeInputNameValue} type="text" className="nameTextSubmit"/>
 
@@ -89,6 +92,7 @@ export default function PostPage() {
                 <textarea onChange={changeInputPostBody} className="mainTextSubmit"/>
                 <br/>
                 <button onClick={submitReply}>REPLY</button>
+            </div>
             </div>
 
         </div> )}
